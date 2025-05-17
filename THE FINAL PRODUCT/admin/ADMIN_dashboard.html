@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+ 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="../background barber.webp">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .admin-page {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #495057;
+      color: #fff;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      border-right: 1px solid #dee2e6;
+    }
+
+    .sidebar h4 {
+      margin-bottom: 30px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .sidebar button {
+      color: #fff;
+      border-color: #ced4da;
+    }
+
+    .sidebar button:hover {
+      background-color: #6c757d;
+      border-color: #adb5bd;
+    }
+
+    .content {
+      margin-left: 220px;
+      padding: 30px 20px;
+      flex-grow: 1;
+      overflow-y: auto;
+      height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .message {
+      max-width: 75%;
+      margin-bottom: 8px;
+      padding: 10px 15px;
+      border-radius: 20px;
+      word-wrap: break-word;
+      display: inline-block;
+    }
+
+    .message.admin {
+      background-color: #007bff;
+      color: white;
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .message.customer {
+      background-color: #e9ecef;
+      color: black;
+      align-self: flex-start;
+      text-align: left;
+    }
+    .chat-user-active {
+      background-color: #d3d3d3 !important;
+      font-weight: bold;
+    }
+    
+
+
+
+
+    @media (max-width: 768px) {
+      .admin-page {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .content {
+        margin-left: 0;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body class="admin-page">
+  <div class="sidebar">
+    <h4>ADMIN</h4>
+    <button id="customerSectionBtn" class="btn btn-outline-light w-100 mb-2" onclick="showSection('customerSection')">Customers</button>
+    <button id="barberSectionBtn" class="btn btn-outline-light w-100 mb-2" onclick="showSection('barberSection')">Barbers</button>
+    <button id="serviceSectionBtn" class="btn btn-outline-light w-100 mb-2" onclick="showSection('serviceSection')">Services</button>
+    <button id="appointmentSectionBtn" class="btn btn-outline-primary w-100 mb-2" onclick="showSection('appointmentSection')">Appointments</button>
+    <button id="chatSectionBtn" class="btn btn-outline-light w-100 mb-2" onclick="showSection('chatSection')">
+      Customer Chat
+      <span id="unreadDot" class="badge bg-danger ms-1" style="display: none;">●</span>
+    </button>
+    <button id="settingsSectionBtn" class="btn btn-outline-light w-100 mb-2" onclick="showSection('settingsSection')">Settings</button>
+
+    
+    <button class="btn btn-danger w-100" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="content">
+  
+    <section id="customerSection" class="section active">
+      <h2>Customer Management</h2>
+      <form id="customerForm" class="mb-4">
+        <div class="mb-3"><input type="text" id="customerName" class="form-control" placeholder="Name" required /></div>
+        <div class="mb-3"><input type="email" id="customerEmail" class="form-control" placeholder="Email" required /></div>
+        <div class="mb-3"><input type="text" id="customerPhone" class="form-control" placeholder="Phone" required /></div>
+        <div class="mb-3"><input type="text" id="customerAddress" class="form-control" placeholder="Address" required /></div>
+        <div class="mb-3"><input type="password" id="customerPassword" class="form-control" placeholder="Password" required /></div>
+        <button type="submit" class="btn btn-primary">Add Customer</button>
+      </form>
+      <ul id="customerList" class="list-group"></ul>
+    </section>
+
+    <section id="barberSection" class="section">
+      <h2>Barber Management</h2>
+      <form id="barberForm" class="mb-4">
+        <div class="mb-3 "><input type="text" id="barberName" class="form-control" placeholder="Name" required /></div>
+        <div class="mb-3"><input type="email" id="barberEmail" class="form-control" placeholder="Email" required /></div>
+        <div class="mb-3"><input type="text" id="barberNumber" class="form-control" placeholder="Phone" required /></div>
+        <div class="mb-3"><input type="text" id="barberAddress" class="form-control" placeholder="Address" required /></div>
+        
+        <button type="submit" class="btn btn-primary">Add Barber</button>
+      </form>
+      <ul id="barberList" class="list-group"></ul>
+    </section>
+
+
+    <section id="serviceSection" class="section">
+      <h2>Service Management</h2>
+      <form id="serviceForm" class="mb-4">
+        <div class="mb-3"><input type="text" id="serviceName" class="form-control" placeholder="Service Name" required /></div>
+        <div class="mb-3"><input type="number" id="servicePrice" class="form-control" placeholder="Price" required /></div>
+        <div class="mb-3">
+          <textarea id="serviceDescription" class="form-control" placeholder="Description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3"><input type="file" id="serviceImage" class="form-control" accept="image/*" required /></div>
+        <button type="submit" class="btn btn-primary">Add Service</button>
+      </form>
+      
+      <ul id="serviceList" class="list-group"></ul>
+    </section>
+
+    <section id="appointmentSection" class="section">
+      <h2>Appointments</h2>
+      <div class="d-flex justify-content-center mb-3">
+        <button class="btn btn-outline-primary mx-1" onclick="filterAppointments('ongoing')">Ongoing</button>
+        <button class="btn btn-outline-warning mx-1" onclick="filterAppointments('requestedCancel')">Requested Cancellation</button>
+        <button class="btn btn-outline-danger mx-1" onclick="filterAppointments('canceled')">Canceled</button>
+        <button class="btn btn-outline-info mx-1" onclick="filterAppointments('payment')">Payment</button>
+        <button class="btn btn-outline-secondary mx-1" onclick="filterAppointments('completed')">Completed</button>
+      </div>
+      <div id="appointmentsList" class="list-group"></div>
+    </section>
+
+   <section id="chatSection" class="section">
+      <h2>Customer Chat</h2>
+      <div class="row flex-grow-1" style="height: 80vh; min-height: 400px;">
+ 
+        <div class="col-md-4 overflow-auto">
+          <ul id="chatUserList" class="list-group">
+         
+          </ul>
+        </div>
+
+       
+        <div class="col-md-8 d-flex flex-column">
+     
+          <div id="chatMessages"
+              class="border p-3 mb-2 overflow-auto flex-grow-1"
+              style="background-color: #fff; border-radius: 5px; min-height: 0;">
+        
+          </div>
+
+     
+          <div class="input-group">
+            <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." />
+            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settingsSection" class="section">
+      <h2>Settings</h2>
+      <h4>Change Admin Password</h4>
+      <form id="changePasswordForm" class="mb-4" style="max-width: 400px;">
+        <div class="mb-3">
+          <input type="password" id="currentPassword" class="form-control" placeholder="Current Password" required />
+        </div>
+        <div class="mb-3">
+          <input type="password" id="newPassword" class="form-control" placeholder="New Password" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </form>
+    </section>
+
+
+
+
+  </div>
+  
+  <div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Customer Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="customerModalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="main.js"></script>
+  <script>
+    window.logout = function () {
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    window.location.href = '../login.html';
+  };
+  
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+  
+    function handleCancellation(action, appointmentId) {
+      if (action === 'approve') {
+        alert(`Cancellation for appointment #${appointmentId} approved.`);
+        
+      } else {
+        alert(`Cancellation for appointment #${appointmentId} rejected.`);
+      
+      }
+    }
+  </script>
+<script>
+  
+  function getData() {
+    return {
+      appointments: JSON.parse(localStorage.getItem('appointments')) || [],
+      customers: JSON.parse(localStorage.getItem('customers')) || [],
+      barbers: JSON.parse(localStorage.getItem('barbers')) || [],
+      services: JSON.parse(localStorage.getItem('services')) || []
+    };
+  }
+ 
+  function filterAppointments(status) {
+    const { appointments, customers, barbers, services } = getData();
+    const list = document.getElementById('appointmentsList');
+    list.innerHTML = ''; 
+
+    let filteredAppointments = [];
+
+    if (status === 'ongoing') {
+      filteredAppointments = appointments.filter(appointment => 
+        appointment.cancelApproved !== true && 
+        appointment.paymentStatus !== true && 
+        new Date(`${appointment.date} ${appointment.time}`) >= new Date()
+      );
+    }else if (status === 'requestedCancel') {
+      filteredAppointments = appointments.filter(appointment => 
+        appointment.cancelRequest && appointment.cancelApproved === null
+      );
+    } else if (status === 'canceled') {
+      filteredAppointments = appointments.filter(appointment => 
+        appointment.cancelApproved === true
+      );
+    } else if (status === 'payment') {
+        filteredAppointments = appointments.filter(appointment => 
+          appointment.paymentStatus !== true && 
+          appointment.cancelApproved !== true && 
+          new Date(`${appointment.date} ${appointment.time}`) >= new Date()
+        );
+    } else if (status === 'completed') {
+      filteredAppointments = appointments.filter(appointment => {
+        const appointmentDateTime = new Date(`${appointment.date}T${appointment.time}`);
+        const isPast = true; 
+        const isPaid = appointment.paymentStatus === true; 
+
+  
+        return isPaid && isPast;
+      });
+    }
+
+
+    filteredAppointments.forEach((appointment) => {
+      const customer = customers.find(c => c.email === appointment.customerEmail);
+      const barber = barbers.find(b => b.email === appointment.barberEmail);
+      const serviceNames = appointment.services.map(i => services[i]?.name || "Unknown");
+
+      let statusText = '';
+      if (status === 'completed') {
+        statusText = 'Paid';
+      } else if (appointment.cancelApproved === true) {
+        statusText = 'Cancelled';
+      } else if (appointment.cancelApproved === false) {
+        statusText = 'Cancellation Rejected';
+      } else if (appointment.cancelRequest) {
+        statusText = 'Cancellation Requested';
+      } else {
+        statusText = 'Ongoing';
+      }
+
+    
+      const cancellationControls = (status === 'requestedCancel' && appointment.cancelRequest && appointment.cancelApproved === null) ? `
+      <div class="d-flex justify-content-between align-items-center w-100 mt-3 flex-wrap">
+        <div class="mb-2">
+          <p class="mb-1"><strong>Reason:</strong> ${appointment.cancelReason || 'No reason provided.'}</p>
+        </div>
+        <div class="d-flex">
+          <button class="btn btn-success me-2" onclick="handleCancellation('approve', '${appointment.customerEmail}', '${appointment.date}', '${appointment.time}')">Approve</button>
+          <button class="btn btn-danger" onclick="handleCancellation('reject', '${appointment.customerEmail}', '${appointment.date}', '${appointment.time}')">Reject</button>
+        </div>
+      </div>` : '';
+
+    
+      const paymentButton = status === 'payment' ? `
+        <div class="mt-3">
+          ${appointment.paymentStatus ? 
+            '<span class="badge bg-success">Paid</span>' :
+            `<button class="btn btn-success" onclick="markAsPaid('${appointment.customerEmail}', '${appointment.date}', '${appointment.time}')">
+              Mark as Paid
+            </button>`
+          }
+          <p class="mt-2"><strong>Total Price:</strong> ₱${appointment.totalPrice}</p>
+        </div>` : '';
+
+      const div = document.createElement('div');
+      div.className = 'list-group-item d-flex justify-content-between align-items-start flex-column flex-md-row';
+      div.innerHTML = `
+        <div class="me-3">
+          <h5>${customer?.name || 'Unknown Customer'}</h5>
+          <p class="mb-1">Service: ${serviceNames.join(', ')}</p>
+          <p class="mb-1">Barber: ${barber?.name || 'Unknown Barber'}</p>
+          <p class="mb-1">Time: ${appointment.date} ${appointment.time}</p>
+          <p class="mb-1"><strong>Status:</strong> ${statusText}</p>
+        </div>
+        ${cancellationControls}
+        ${paymentButton}
+      `;
+      list.appendChild(div);
+    });
+
+    if (filteredAppointments.length === 0) {
+      list.innerHTML = '<p class="text-center">No appointments found.</p>';
+    }
+  }
+  
+  function handleCancellation(action, email, date, time) {
+    const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+    const realIndex = appointments.findIndex(app =>
+      app.customerEmail === email &&
+      app.date === date &&
+      app.time === time
+    );
+
+    if (realIndex !== -1) {
+      appointments[realIndex].cancelApproved = action === 'approve';
+      appointments[realIndex].cancelRequest = false;
+
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+      alert(`Cancellation ${action === 'approve' ? 'approved' : 'rejected'}.`);
+
+
+      filterAppointments('requestedCancel'); 
+      filterAppointments('ongoing');         
+
+    } else {
+      alert("Failed to update the cancellation. Appointment not found.");
+    }
+  }
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    filterAppointments('ongoing');
+  });
+
+ 
+  function markAsPaid(email, date, time) {
+    const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+    const index = appointments.findIndex(app =>
+      app.customerEmail === email &&
+      app.date === date &&
+      app.time === time
+    );
+
+    if (index !== -1) {
+      appointments[index].paymentStatus = true;
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+      alert('Marked as paid successfully!');
+      filterAppointments('completed'); 
+    } else {
+      alert('Appointment not found.');
+    }
+  }
+
+</script>
+  <script>
+
+
+      const serviceForm = document.getElementById('serviceForm');
+    const serviceList = document.getElementById('serviceList');
+  
+    if (serviceForm && serviceList) {
+      function loadServices() {
+        serviceList.innerHTML = '';
+        const services = JSON.parse(localStorage.getItem('services')) || [];
+        services.forEach((service, index) => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+
+          li.innerHTML = `
+            <div class="d-flex align-items-center">
+              <img src="${service.image}" alt="Service Image" style="width: 60px; height: 60px; object-fit: cover; margin-right: 15px; border-radius: 8px;">
+              <div class="flex-grow-1">
+                <strong>${service.name}</strong><br/>
+                ₱${service.price}<br/>
+                <small class="text-muted">${service.description}</small>
+              </div>
+              <button class="btn btn-sm btn-danger ms-3" onclick="deleteService(${index})">Delete</button>
+            </div>
+          `;
+          serviceList.appendChild(li);
+        });
+      }
+
+  
+      serviceForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('serviceName').value.trim();
+        const price = document.getElementById('servicePrice').value.trim();
+        const description = document.getElementById('serviceDescription').value.trim();
+        const imageInput = document.getElementById('serviceImage');
+        const file = imageInput.files[0];
+
+        if (!file) {
+          alert('Please upload a service image.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const image = event.target.result;
+
+          const newService = { name, price, description, image };
+          let services = JSON.parse(localStorage.getItem('services')) || [];
+
+          if (services.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+            alert('Service already exists!');
+            return;
+          }
+
+          services.push(newService);
+          localStorage.setItem('services', JSON.stringify(services));
+          alert('Service added successfully!');
+          serviceForm.reset();
+          loadServices();
+        };
+
+        reader.readAsDataURL(file);
+      });
+
+      window.deleteService = function (index) {
+        let services = JSON.parse(localStorage.getItem('services')) || [];
+        const serviceName = services[index]?.name || 'this service';
+        if (confirm(`Are you sure you want to delete ${serviceName}?`)) {
+          services.splice(index, 1);
+          localStorage.setItem('services', JSON.stringify(services));
+          loadServices();
+        }
+      };
+  
+      loadServices();
+    }
+     
+
+
+  const barberForm = document.getElementById('barberForm');
+  const barberList = document.getElementById('barberList');
+
+  if (barberForm && barberList) {
+    function loadBarbers() {
+      barberList.innerHTML = '';
+      const barbers = JSON.parse(localStorage.getItem('barbers')) || [];
+      barbers.forEach((barber, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+          ${barber.name} (${barber.email})
+          <button class="btn btn-sm btn-danger" onclick="deleteBarber(${index})">Delete</button>
+        `;
+        barberList.appendChild(li);
+      });
+    }
+
+    barberForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('barberName').value.trim();
+      const email = document.getElementById('barberEmail').value.trim();
+      const number = document.getElementById('barberNumber').value.trim();
+      const address = document.getElementById('barberAddress').value.trim();
+
+      const newBarber = { name, email, number, address };
+      let barbers = JSON.parse(localStorage.getItem('barbers')) || [];
+
+      if (barbers.some(b => b.email === email)) {
+        alert('Email already exists!');
+        return;
+      }
+
+      barbers.push(newBarber);
+      localStorage.setItem('barbers', JSON.stringify(barbers));
+      alert('Barber added successfully!');
+      barberForm.reset();
+      loadBarbers();
+    });
+
+    window.deleteBarber = function (index) {
+      let barbers = JSON.parse(localStorage.getItem('barbers')) || [];
+      const barberName = barbers[index]?.name || 'this barber';
+      if (confirm(`Are you sure you want to delete ${barberName}?`)) {
+        barbers.splice(index, 1);
+        localStorage.setItem('barbers', JSON.stringify(barbers));
+        loadBarbers();
+      }
+    };
+
+    loadBarbers();
+  }
+  
+  // ------------------ CUSTOMER MANAGEMENT ------------------
+
+  const customerForm = document.getElementById('customerForm');
+  const customerList = document.getElementById('customerList');
+
+  if (customerForm && customerList) {
+    function loadCustomers() {
+      customerList.innerHTML = '';
+      const customers = JSON.parse(localStorage.getItem('customers')) || [];
+      customers.forEach((customer, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+          ${customer.name} (${customer.email})
+          <button class="btn btn-sm btn-info me-2" onclick="viewCustomer(${index})">View</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${index})">Delete</button>
+        `;
+        customerList.appendChild(li);
+      });
+    }
+
+
+    window.viewCustomer = function (index) {
+    const customers = JSON.parse(localStorage.getItem('customers')) || [];
+    const customer = customers[index];
+
+    const modalBody = document.getElementById('customerModalBody');
+    modalBody.innerHTML = `
+      <h5>Profile</h5>
+      <p><strong>Name:</strong> ${customer.name}</p>
+      <p><strong>Email:</strong> ${customer.email}</p>
+      <p><strong>Phone:</strong> ${customer.phone || ''}</p>
+      <p><strong>Address:</strong> ${customer.address || ''}</p>
+
+      <hr>
+      <h5>Change Password</h5>
+      <form id="changePasswordForm">
+        <div class="mb-2">
+          <input type="password" id="newPassword" class="form-control" placeholder="New Password" required>
+        </div>
+        <div class="mb-2">
+          <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm New Password" required>
+        </div>
+        <button type="submit" class="btn btn-warning btn-sm">Update Password</button>
+      </form>
+      <p id="passwordChangeMsg" class="mt-2 text-success" style="display:none;"></p>
+    `;
+
+    const modal = new bootstrap.Modal(document.getElementById('customerModal'));
+    modal.show();
+
+    document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const newPassword = document.getElementById('newPassword').value.trim();
+      const confirmNewPassword = document.getElementById('confirmNewPassword').value.trim();
+
+      if (/\s/.test(newPassword) || newPassword.length < 8) {
+        alert('Password must be at least 8 characters long and must not contain spaces.');
+        return;
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        alert('Passwords do not match.');
+        return;
+      }
+
+
+      const confirmChange = confirm('Are you sure you want to change the password for this customer?');
+      if (!confirmChange) return;
+
+
+      customers[index].password = newPassword;
+      localStorage.setItem('customers', JSON.stringify(customers));
+
+      document.getElementById('passwordChangeMsg').textContent = 'Password updated successfully!';
+      document.getElementById('passwordChangeMsg').style.display = 'block';
+      document.getElementById('changePasswordForm').reset();
+    });
+
+  };
+
+
+
+   
+    customerForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('customerName').value.trim();
+      const email = document.getElementById('customerEmail').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const address = document.getElementById('customerAddress').value.trim();
+      const password = document.getElementById('customerPassword').value;
+
+      if (password.length < 8) {
+        alert('Password must be at least 8 characters long.');
+        return;
+      }
+      if (/\s/.test(password)) {
+        alert('Password must not contain spaces.');
+        return;
+      }
+
+      const newCustomer = { name, email, phone, address, password, services: [] };
+      let customers = JSON.parse(localStorage.getItem('customers')) || [];
+
+      if (customers.some(c => c.email === email)) {
+        alert('Email already exists!');
+        return;
+      }
+
+      customers.push(newCustomer);
+      localStorage.setItem('customers', JSON.stringify(customers));
+      alert('Customer added successfully!');
+      customerForm.reset();
+      loadCustomers();
+    });
+
+
+    window.deleteCustomer = function (index) {
+      let customers = JSON.parse(localStorage.getItem('customers')) || [];
+      const customerName = customers[index]?.name || 'this customer';
+      if (confirm(`Are you sure you want to delete ${customerName}?`)) {
+        customers.splice(index, 1);
+        localStorage.setItem('customers', JSON.stringify(customers));
+        loadCustomers();
+      }
+    };
+
+    loadCustomers();
+  }
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--chattttttttttttttttttttttttttttttttttt-->
+<script>
+  const adminEmail = 'admin@c202.com';
+  let selectedChatKey = null;
+
+  function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+  }
+
+  function getCustomerNameFromKey(key) {
+    const parts = key.split('_');
+    return parts.slice(2).join('_');
+  }
+
+  function getAllChatKeys() {
+    return Object.keys(localStorage).filter(key => key.startsWith(`messages_${adminEmail}_`));
+  }
+
+  function renderChatUsers() {
+    const list = document.getElementById("chatUserList");
+    list.innerHTML = "";
+
+    let hasUnread = false;
+
+    getAllChatKeys().forEach(key => {
+      const messages = JSON.parse(localStorage.getItem(key)) || [];
+      const unread = messages.some(m => m.sender !== adminEmail && !m.read);
+      if (unread) hasUnread = true;
+
+      const li = document.createElement("li");
+      li.className = "list-group-item d-flex justify-content-between align-items-center";
+      if (key === selectedChatKey) {
+        li.classList.add("chat-user-active");
+      }
+
+      const customerName = getCustomerNameFromKey(key);
+      li.innerHTML = `
+        <span style="cursor: pointer;" onclick="loadChat('${key}')">${customerName}</span>
+        ${unread ? '<span class="badge bg-danger">●</span>' : ""}
+      `;
+      list.appendChild(li);
+    });
+
+    document.getElementById("unreadDot").style.display = hasUnread ? "inline" : "none";
+  }
+
+  function loadChat(key) {
+    selectedChatKey = key;
+    const chatBox = document.getElementById("chatMessages");
+    chatBox.innerHTML = "";
+
+    let messages = JSON.parse(localStorage.getItem(key)) || [];
+
+    messages.forEach(msg => {
+      const div = document.createElement("div");
+
+      if (msg.sender === adminEmail) {
+        div.className = "text-end";
+        div.innerHTML = `<span class="d-inline-block bg-primary text-white p-2 rounded mb-1">${msg.text}</span>`;
+      } else {
+        div.className = "text-start";
+        div.innerHTML = `<span class="d-inline-block bg-light text-dark p-2 rounded mb-1">${msg.text}</span>`;
+      }
+
+      chatBox.appendChild(div);
+    });
+
+    // Scroll to bottom
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Mark all as read
+    messages = messages.map(msg => ({
+      ...msg,
+      read: msg.sender === adminEmail ? msg.read : true
+    }));
+
+    localStorage.setItem(key, JSON.stringify(messages));
+    renderChatUsers(); // Update sidebar UI
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text || !selectedChatKey) return;
+
+    const messages = JSON.parse(localStorage.getItem(selectedChatKey)) || [];
+    messages.push({ sender: adminEmail, text, time: new Date().toISOString(), read: true });
+    localStorage.setItem(selectedChatKey, JSON.stringify(messages));
+    input.value = "";
+    loadChat(selectedChatKey);
+  }
+
+  document.getElementById("chatInput").addEventListener("keypress", e => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  renderChatUsers();
+</script>
+<Script>
+  ///
+  // Initialize admin password if not set
+  if (!localStorage.getItem('adminPassword')) {
+    localStorage.setItem('adminEmail', 'admin@c202.com');
+    localStorage.setItem('adminPassword', 'superadmin');
+  }
+
+  // Change Admin Password Logic
+  const changePasswordForm = document.getElementById('changePasswordForm');
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const current = document.getElementById('currentPassword').value;
+      const newPass = document.getElementById('newPassword').value;
+      const savedPassword = localStorage.getItem('adminPassword');
+
+      if (current !== savedPassword) {
+        alert('Current password is incorrect!');
+        return;
+      }
+
+      if (/\s/.test(newPass) || newPass.length < 8) {
+        alert('New password must be at least 8 characters long and contain no spaces.');
+        return;
+      }
+
+      localStorage.setItem('adminPassword', newPass);
+      alert('Password changed successfully!');
+      changePasswordForm.reset();
+    });
+  }
+
+</Script>
+
+ 
+</body>
+</html>

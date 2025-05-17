@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Barber</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/x-icon" href="background barber.webp">
+    <style>
+     
+        .hero {
+            background: url('background barber.webp') no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+            position: relative;
+        }
+        .location {
+            background: url('background barber.webp') no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+            position: relative;
+        }
+        
+        
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+   
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand fw-bold" href="#">BOOK A BARBER</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item"><a class="nav-link fw-semibold" href="services.html">Service</a></li>
+                  <li class="nav-item"><a class="nav-link fw-semibold" href="About.html">About</a></li>
+                  <li class="nav-item"><a class="nav-link fw-semibold" href="contact.html">Contact</a></li>
+                  <li class="nav-item"><a class="nav-link fw-semibold" href="login.html">Login</a></li>
+                  <li class="nav-item"><a class="nav-link fw-semibold" href="index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero d-flex align-items-center justify-content-center text-center text-light">
+        <div class="container hero-content">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-10">
+               
+                    <h2 class="display-4 fw-semibold">Book an appointment in seconds, anytime, anywhere!</h2>
+                    <p class="fs-4">Skip the wait. Book your perfect cut with a top-rated barber today!</p>
+                    <a href="login.html" class="btn btn-warning btn-lg px-4 py-2 mt-3 fw-bold">Book Now</a>
+                    <a href="signup.html" class="btn btn-outline-light btn-lg px-4 py-2 mt-3 ms-3 fw-bold">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+    
+
+    <section class="container text-center my-5">
+        <h2 class="fw-bold">Why Choose Us?</h2>
+        <p class="lead">Book a professional barber online and enjoy top-quality service at your convenience.</p>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <h5>💈 Experienced Barbers</h5>
+                <p>Only certified and skilled barbers.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>📅 Easy Online Booking</h5>
+                <p>Choose a time that fits your schedule.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>🏆 Premium Experience</h5>
+                <p>Relax in a comfortable and professional atmosphere.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <p>&copy; 2025 Book a Barber. All Rights Reserved.</p>
+        <p>Follow us on <a href="#" class="text-warning">Instagram</a> | <a href="#" class="text-warning">Facebook</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

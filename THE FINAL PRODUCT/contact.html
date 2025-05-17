@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us - Book a Barber</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="icon" type="image/x-icon" href="background barber.webp" >
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .hero {
+      background: url('background barber.webp') no-repeat center center;
+      background-size: cover;
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+
+    nav {
+      z-index: 2;
+    }
+
+    .contact-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* vertical centering */
+      align-items: center;     /* horizontal centering */
+      text-align: center;
+      color: white;
+      position: relative;
+      z-index: 2;
+      padding: 60px 30px;
+    }
+
+    .contact-content h1 {
+      font-size: 3rem;
+    }
+
+    .contact-content .lead {
+      font-size: 1.5rem;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-top: 40px;
+      gap: 30px;
+    }
+
+    .contact-info div {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .contact-info h5 {
+      font-size: 1.25rem;
+    }
+
+    .contact-info p {
+      font-size: 1.1rem;
+    }
+
+    footer {
+      background-color: #212529;
+      color: white;
+      z-index: 2;
+    }
+  </style>
+
+</head>
+<body>
+  <div class="hero">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">BOOK A BARBER</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link fw-semibold" href="services.html">Service</a></li>
+            <li class="nav-item"><a class="nav-link fw-semibold" href="About.html">About</a></li>
+            <li class="nav-item"><a class="nav-link fw-semibold" href="contact.html">Contact</a></li>
+            <li class="nav-item"><a class="nav-link fw-semibold" href="login.html">Login</a></li>
+            <li class="nav-item"><a class="nav-link fw-semibold" href="index.html">Home</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container contact-content">
+      <h1 class="fw-bold">Contact Us</h1>
+      <p class="lead">Get in touch with us for inquiries or appointments.</p>
+
+      <div class="contact-info mt-4">
+        <div>
+          <h5>📍 Address</h5>
+          <p>City College of Angeles, Angeles City, Philippines</p>
+        </div>
+        <div>
+          <h5>📞 Phone</h5>
+          <p>+63 912 345 6789</p>
+        </div>
+        <div>
+          <h5>✉ Email</h5>
+          <p>contact@bookabarber.com</p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="text-center py-3">
+      <p>&copy; 2025 Book a Barber. All Rights Reserved.</p>
+      <p>Follow us on <a href="#" class="text-warning">Instagram</a> | <a href="#" class="text-warning">Facebook</a></p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

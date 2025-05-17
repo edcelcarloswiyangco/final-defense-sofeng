@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="../background barber.webp">
+  <style>
+    .container-fluid {
+      padding: 0;
+    }
+    .sidebar {
+      height: 98vh;
+      background-color: #343a40;
+    }
+    .sidebar button {
+      width: 100%;
+      border: none;
+      background: none;
+      color: #fff;
+      padding: 15px;
+      text-align: left;
+      
+    }
+    .sidebar button.active,
+    .sidebar button:hover {
+      background-color: #495057;
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+
+
+    #appointments {
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-height: 625px;
+      overflow-y: auto;  
+    }
+
+    #appointments h2 {
+      color: #343a40;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    #upcomingAppointment {
+      background-color: #ffffff;
+      padding: 15px 20px;
+      border-left: 5px solid #0d6efd;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #212529;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    #upcomingAppointment p {
+      margin: 6px 0;
+    }
+
+    #servicesList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(48%, 1fr));
+      gap: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 5px;
+      scrollbar-width: thin;
+    }
+
+    #servicesList::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #servicesList::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 4px;
+    }
+
+    .service-card {
+      display: flex;
+      gap: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .service-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      background-color: #f9f9f9;
+    }
+
+
+    .service-card input[type="checkbox"] {
+      transform: scale(1.2);
+      margin-top: 10px;
+    }
+
+    .service-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .service-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .service-info h5 {
+      font-size: 1.05rem;
+      margin: 0 0 5px;
+      font-weight: 600;
+    }
+
+    .service-description {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .service-price {
+      font-weight: bold;
+      color: #007bff;
+    }
+    
+    #chatBox {
+      padding: 10px;
+      height: 900px;  
+      overflow-y: auto;
+      background: #f1f1f1;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #chatBox .text-end {
+      text-align: right;
+      margin-bottom: 15px;
+    }
+
+    #chatBox .text-start {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    #chatBox .bg-primary {
+      background-color: #007bff;
+    }
+
+    #chatBox .bg-secondary {
+      background-color: #6c757d;
+    }
+
+    #chatBox span {
+      padding: 12px 16px;
+      border-radius: 15px;
+      display: inline-block;
+      max-width: 75%;
+      word-wrap: break-word;
+      color: white;
+    }
+
+
+
+
+
+
+
+
+  </style>
+</head>
+<body class="customer-page">
+
+<div class="container-fluid">
+  <div class="row">
+    
+    <div class="col-md-2 sidebar d-flex flex-column">
+      <h4 class="text-white text-center my-3">Customer</h4>
+      <button id="profileBtn"  onclick="showSection('profile')">Profile</button>
+      <button id="appointmentsBtn" onclick="showSection('appointments')">Appointments</button>
+      <button id="bookAppointmentBtn"  class="active" onclick="showSection('bookAppointment')">Book Appointment</button>
+      <button id="chatBtn" onclick="showSection('chat')">Customer Service Chat</button>
+
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-10 p-4">
+      <!-- Profile Section -->
+      <div id="profile" class="section">
+        <h2>Your Profile</h2>
+        <form id="updateProfileForm">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" id="updateName" class="form-control" required />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Email (read-only)</label>
+              <input type="email" id="updateEmail" class="form-control" readonly />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Phone</label>
+              <input type="text" id="updatePhone" class="form-control" pattern="[0-9]{11}" inputmode="numeric" required title="Phone number must be exactly 11 digits (numbers only)" />
+            </div>
+            <div class="col-md-4 mb-3">
+
+            </div>
+            <div class=" mb-3">
+              <label class="form-label">Address</label>
+              <input type="text" id="updateAddress" class="form-control" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success " >Save Changes</button>
+        </form>
+
+        <hr/>
+        <h4>Change Password</h4>
+        <form id="changePasswordForm">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Current Password</label>
+              <input type="password" id="currentPassword" class="form-control" required />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">New Password</label>
+              <input type="password" id="newPassword" class="form-control" required />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" id="confirmNewPassword" class="form-control" required />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-warning">Change Password</button>
+        </form>
+
+      </div>
+
+      <!-- Book Appointment Section -->
+      <div id="bookAppointment" class="section active">
+        <h2>Book an Appointment</h2>
+        <form id="bookAppointmentForm">
+          <div class="row g-2">
+            <div class="col-md-4">
+              <label class="form-label">Date</label>
+              <input type="date" id="appointmentDate" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Time</label>
+              <input type="time" id="appointmentTime" class="form-control" min="08:00" max="17:00" required />
+
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Barber</label>
+              <select id="appointmentBarber" class="form-control" required>
+                <option value="">-- Choose --</option>
+              </select>
+            </div>
+          
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Select Service(s)</label>
+            <div id="servicesList"></div>
+          </div>
+          <!-- Service Selection Section -->
+          <div id="servicesList"></div>
+
+        
+          <div id="selectedServicesBox" class="mt-4" style="display: none;">
+            <div class="card p-3 shadow-sm">
+              <h5>Selected Services Breakdown</h5>
+              <ul id="selectedServicesList"></ul>
+              <div class="d-flex justify-content-between">
+                <h6>Total Price</h6>
+                <p id="totalPrice">₱0</p>
+              </div>
+              <button id="bookAppointmentButton" class="btn btn-primary w-100" onclick="bookAppointment()">Book Appointment</button>
+            </div>
+          </div>
+        
+        </form>
+        <p id="appointmentStatus"></p>
+      </div>
+
+      <!-- Appointments Section -->
+      
+      <div id="appointments" class="section">
+        <h2>Your Appointments</h2>
+        <div class="d-flex justify-content-center mb-3">
+          <button class="btn btn-outline-primary mx-1" onclick="filterAppointments('ongoing')">Ongoing</button>
+          <button class="btn btn-outline-success mx-1" onclick="filterAppointments('completed')">Completed</button>
+          <button class="btn btn-outline-danger mx-1" onclick="filterAppointments('canceled')">Canceled</button>
+        </div>
+        <div id="appointmentList"></div>
+      </div>
+      <div id="chat" class="section">
+        <h2>Message Customer Service</h2>
+        <div id="chatBox" class="border rounded p-3 mb-3" style="height: 500px; overflow-y: auto; background: #f1f1f1;"></div>
+        <div class="input-group">
+          <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+          <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../main.js"></script>
+<script>
+
+    if (localStorage.getItem('loggedIn') !== 'true' || localStorage.getItem('userRole') !== 'customer') {
+    alert('You must log in as a customer first.');
+    window.location.href = '../login.html';
+  }
+
+
+  window.showSection = function (id) {
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id + 'Btn').classList.add('active');
+  };
+
+
+  function logout() {
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    window.location.href = '../login.html';
+  }
+
+
+  const customers = JSON.parse(localStorage.getItem('customers')) || [];
+  const currentEmail = customers.find(c => c.email === localStorage.getItem('userEmail'))?.email ||
+                      customers.find(c => c.name === localStorage.getItem('userName'))?.email;
+  const current = customers.find(c => c.email === currentEmail);
+
+  if (current) {
+    document.getElementById('updateName').value = current.name || '';
+    document.getElementById('updateEmail').value = current.email || '';
+    document.getElementById('updatePhone').value = current.phone || '';
+    document.getElementById('updateAddress').value = current.address || '';
+  }
+
+  
+  const updateProfileForm = document.getElementById('updateProfileForm');
+  updateProfileForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const updatedName = document.getElementById('updateName').value.trim();
+    const updatedPhone = document.getElementById('updatePhone').value.trim();
+    const updatedAddress = document.getElementById('updateAddress').value.trim();
+
+   
+    if (!/^\d{11}$/.test(updatedPhone)) {
+      alert('Phone number must be exactly 11 digits and contain numbers only.');
+      return;
+    }
+
+    let customers = JSON.parse(localStorage.getItem('customers')) || [];
+    const index = customers.findIndex(c => c.email === current.email);
+    if (index !== -1) {
+      customers[index].name = updatedName;
+      customers[index].phone = updatedPhone;
+      customers[index].address = updatedAddress;
+      localStorage.setItem('customers', JSON.stringify(customers));
+      localStorage.setItem('userName', updatedName);
+      alert('Profile updated successfully!');
+    }
+  });
+
+
+
+ 
+  function loadServices() {
+  const services = JSON.parse(localStorage.getItem('services')) || [];
+  const servicesListDiv = document.getElementById('servicesList');
+  servicesListDiv.innerHTML = '';
+
+  if (services.length === 0) {
+    servicesListDiv.innerHTML = `<p class="text-danger">No available services at the moment.</p>`;
+    return;
+  }
+
+  services.forEach((service, index) => {
+    const card = document.createElement('div');
+    card.classList.add('service-card');
+    card.innerHTML = `
+      <label class="service-card-content">
+        <input type="checkbox" class="service-checkbox" value="${index}" onclick="updateServiceSelection()">
+        <img src="${service.image}" alt="${service.name}">
+        <div class="service-info">
+          <h5>${service.name}</h5>
+          <p class="service-description">${service.description || 'No description available.'}</p>
+          <p class="service-price">₱${service.price}</p>
+        </div>
+      </label>
+    `;
+    servicesListDiv.appendChild(card);
+  });
+}
+
+
+
+  loadServices();
+  function loadBarbers() {
+    const barbers = JSON.parse(localStorage.getItem('barbers')) || [];
+    const barberSelect = document.getElementById('appointmentBarber');
+    barberSelect.innerHTML = '<option value="">-- Choose a Barber --</option>';
+
+    barbers.forEach(barber => {
+      const option = document.createElement('option');
+      option.value = barber.email;
+      option.textContent = barber.name;
+      barberSelect.appendChild(option);
+    });
+  }
+  loadServices();
+  loadBarbers()
+
+
+  const bookAppointmentForm = document.getElementById('bookAppointmentForm');
+  bookAppointmentForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const selectedServices = [];
+    document.querySelectorAll('#servicesList input[type="checkbox"]:checked').forEach(checkbox => {
+      selectedServices.push(Number(checkbox.value));
+    });
+
+    const appointmentDate = document.getElementById('appointmentDate').value;
+    const appointmentTime = document.getElementById('appointmentTime').value;
+
+    if (selectedServices.length === 0) {
+      alert('Please select at least one service!');
+      return;
+    }
+
+    const selectedBarber = document.getElementById('appointmentBarber').value;
+      if (!selectedBarber) {
+        alert('Please select a barber!');
+        return;
+      }
+
+    
+      const services = JSON.parse(localStorage.getItem('services')) || [];
+      let totalPrice = 0;
+      selectedServices.forEach(index => {
+        totalPrice += parseFloat(services[index]?.price || 0);
+      });
+
+     
+      totalPrice = Math.round(totalPrice);
+
+      const newAppointment = {
+        customerEmail: current.email,
+        barberEmail: selectedBarber,
+        date: appointmentDate,
+        time: appointmentTime,
+        services: selectedServices,
+        totalPrice: totalPrice, 
+      };
+
+
+    let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+    appointments.push(newAppointment);
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+
+    alert('Appointment booked successfully!');
+    window.location.reload();
+  });
+
+  // Display upcoming appointments
+
+
+function filterAppointments(status = 'ongoing') {
+  const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+  const services = JSON.parse(localStorage.getItem('services')) || [];
+  const barbers = JSON.parse(localStorage.getItem('barbers')) || [];
+  const appointmentList = document.getElementById('appointmentList');
+  appointmentList.innerHTML = '';
+
+  const now = new Date();
+  const customerAppointments = appointments.filter(app => app.customerEmail === current.email);
+
+
+  const filtered = customerAppointments.filter(app => {
+    const appDateTime = new Date(`${app.date}T${app.time}`);
+    if (status === 'ongoing') {
+      return app.cancelApproved !== true && app.paymentStatus !== true && appDateTime >= now;
+    } else if (status === 'completed') {
+      return app.paymentStatus === true && app.cancelApproved !== true;
+    } else if (status === 'canceled') {
+      return app.cancelApproved === true;
+    }
+    return false;
+  });
+
+  if (filtered.length === 0) {
+    appointmentList.innerHTML = `<p class="text-center">No ${status} appointments found.</p>`;
+    return;
+  }
+
+
+  filtered.forEach((appointment, index) => {
+    const serviceNames = appointment.services.map(i => services[i]?.name || 'Unknown Service');
+    const barber = barbers.find(b => b.email === appointment.barberEmail);
+    
+    let statusMsg = '';
+
+    if (appointment.cancelRequest && appointment.cancelApproved === null) {
+      statusMsg = `
+        <p class="text-warning">Cancellation requested. Awaiting admin approval.</p>
+        <p><strong>Reason:</strong> ${appointment.cancelReason || 'N/A'}</p>
+      `;
+    } else if (appointment.cancelApproved === true) {
+      statusMsg = `<p class="text-success">Cancelled</p>`;
+    } else if (appointment.cancelApproved === false) {
+      statusMsg = `<p class="text-danger">Cancellation rejected</p>`;
+    } else if (status === 'ongoing') {
+      statusMsg = `
+        <div id="cancel-form-${index}">
+          <textarea class="form-control mb-2" id="cancel-reason-${index}" rows="2" placeholder="Enter your reason for cancellation..."></textarea>
+          <button class="btn btn-danger btn-sm" onclick="submitCancel(${index})">Submit Cancellation Request</button>
+        </div>
+      `;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'card mb-3';
+    card.innerHTML = `
+      <div class="card-body">
+        <h5 class="card-title">Appointment</h5>
+        <p><strong>Date:</strong> ${appointment.date}</p>
+        <p><strong>Time:</strong> ${appointment.time}</p>
+        <p><strong>Barber:</strong> ${barber ? barber.name : 'N/A'}</p>
+        <p><strong>Services:</strong> ${serviceNames.join(', ')}</p>
+        ${statusMsg}
+      </div>
+    `;
+
+    appointmentList.appendChild(card);
+  });
+}
+
+
+function requestCancel(index) {
+  const reason = prompt('Please explain why you want to cancel this appointment:');
+  if (!reason || reason.trim() === '') {
+    alert('Cancellation reason is required.');
+    return;
+  }
+
+  if (confirm('Are you sure you want to request the cancellation of this appointment?')) {
+    let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+    const customerAppointments = appointments.filter(app => app.customerEmail === current.email);
+
+    const realIndex = appointments.findIndex(app =>
+      app.customerEmail === customerAppointments[index].customerEmail &&
+      app.date === customerAppointments[index].date &&
+      app.time === customerAppointments[index].time
+    );
+
+    if (realIndex !== -1) {
+      appointments[realIndex].cancelRequest = true;
+      appointments[realIndex].cancelApproved = null;
+      appointments[realIndex].cancelReason = reason.trim(); // Save the reason
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+      alert('Cancellation request submitted. Awaiting admin approval.');
+      filterAppointments('ongoing');
+    }
+  }
+}
+
+  function approveCancel(index) {
+    let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+    const customerAppointments = appointments.filter(app => app.customerEmail === current.email);
+
+    const realIndex = appointments.findIndex(app => 
+      app.customerEmail === customerAppointments[index].customerEmail &&
+      app.date === customerAppointments[index].date &&
+      app.time === customerAppointments[index].time
+    );
+
+    if (realIndex !== -1) {
+      appointments[realIndex].cancelApproved = true;
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+      alert('Cancellation approved.');
+      filterAppointments('ongoing');
+    }
+  }
+  function submitCancel(index) {
+    const reasonInput = document.getElementById(`cancel-reason-${index}`);
+    const reason = reasonInput.value.trim();
+
+    if (!reason) {
+      alert('Please enter a reason for cancellation.');
+      return;
+    }
+
+    let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+    const customerAppointments = appointments.filter(app => app.customerEmail === current.email);
+
+    const realIndex = appointments.findIndex(app =>
+      app.customerEmail === customerAppointments[index].customerEmail &&
+      app.date === customerAppointments[index].date &&
+      app.time === customerAppointments[index].time
+    );
+
+    if (realIndex !== -1) {
+      appointments[realIndex].cancelRequest = true;
+      appointments[realIndex].cancelApproved = null;
+      appointments[realIndex].cancelReason = reason;
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+      alert('Cancellation request submitted.');
+      filterAppointments('ongoing');
+    }
+  }
+
+  function rejectCancel(index) {
+    let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+    const customerAppointments = appointments.filter(app => app.customerEmail === current.email);
+
+
+    const realIndex = appointments.findIndex(app => 
+      app.customerEmail === customerAppointments[index].customerEmail &&
+      app.date === customerAppointments[index].date &&
+      app.time === customerAppointments[index].time
+    );
+
+    if (realIndex !== -1) {
+      appointments[realIndex].cancelApproved = false;
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+      alert('Cancellation rejected.');
+      filterAppointments('ongoing');
+    }
+  }
+ 
+  filterAppointments('ongoing');
+
+
+function updateServiceSelection() {
+  const selectedServices = [];
+  let totalPrice = 0;
+  
+  // Get all checked checkboxes
+  document.querySelectorAll('#servicesList input[type="checkbox"]:checked').forEach(checkbox => {
+    const serviceIndex = checkbox.value;
+    const service = JSON.parse(localStorage.getItem('services'))[serviceIndex];
+    
+    selectedServices.push(service);
+    totalPrice += parseFloat(service.price);
+  });
+  
+  // Update the breakdown of selected services
+  const selectedServicesList = document.getElementById('selectedServicesList');
+  selectedServicesList.innerHTML = '';
+  
+  selectedServices.forEach(service => {
+    const listItem = document.createElement('li');
+    listItem.textContent = `${service.name} - ₱${service.price}`;
+    selectedServicesList.appendChild(listItem);
+  });
+  
+  // Update the total price
+  document.getElementById('totalPrice').textContent = `₱${totalPrice.toFixed(2)}`;
+  
+  // Show the selected services box
+  document.getElementById('selectedServicesBox').style.display = 'block';
+}
+
+// Function to handle the booking
+function bookAppointment() {
+  const selectedServices = [];
+  document.querySelectorAll('#servicesList input[type="checkbox"]:checked').forEach(checkbox => {
+    selectedServices.push(Number(checkbox.value));
+  });
+  
+  if (selectedServices.length === 0) {
+    alert('Please select at least one service!');
+    return;
+  }
+  
+
+}
+
+
+function loadServices() {
+  const services = JSON.parse(localStorage.getItem('services')) || [];
+  const servicesListDiv = document.getElementById('servicesList');
+  servicesListDiv.innerHTML = ''; 
+
+  services.forEach((service, index) => {
+    const card = document.createElement('div');
+    card.classList.add('service-card');
+    card.innerHTML = `
+      <label class="service-card-content">
+        <input type="checkbox" class="service-checkbox" value="${index}" onclick="updateServiceSelection()">
+        <img src="${service.image}" alt="${service.name}">
+        <div class="service-info">
+          <h5>${service.name}</h5>
+          <p class="service-description">${service.description || 'No description available.'}</p>
+          <p class="service-price">₱${service.price}</p>
+        </div>
+      </label>
+    `;
+    servicesListDiv.appendChild(card);
+  });
+}
+
+
+
+</script>
+
+<script>
+  const adminEmail = 'admin@c202.com';
+  const chatKey = `messages_${adminEmail}_${current.email}`;
+
+  function loadMessages() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '';
+
+    const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+
+    messages.forEach(msg => {
+      const wrapper = document.createElement('div');
+      const bubble = document.createElement('span');
+
+     
+      wrapper.style.marginBottom = '10px';
+      if (msg.sender === current.email) {
+        wrapper.className = 'text-end'; 
+        bubble.className = 'bg-primary text-white p-2 rounded';
+      } else {
+        wrapper.className = 'text-start'; 
+        bubble.className = 'bg-secondary text-white p-2 rounded';
+      }
+
+      bubble.textContent = msg.text;
+      wrapper.appendChild(bubble);
+      chatBox.appendChild(wrapper);
+    });
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+    messages.push({ sender: current.email, text, time: new Date().toISOString(), read: false });
+    localStorage.setItem(chatKey, JSON.stringify(messages));
+
+    input.value = '';
+    loadMessages();
+  }
+
+  document.getElementById('chatInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  loadMessages();
+
+</script>
+
+
+
+
+<!--CHANGE PASSWORD-->
+
+<script>
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    if (changePasswordForm) {
+      changePasswordForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        const email = document.getElementById('updateEmail').value;
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        const index = customers.findIndex(user => user.email === email);
+
+        if (index === -1) {
+          alert("User not found.");
+          return;
+        }
+
+        if (customers[index].password !== currentPassword) {
+          alert("Current password is incorrect.");
+          return;
+        }
+
+        if (/\s/.test(newPassword) || newPassword.length < 8) {
+          alert('New password cannot contain spaces and must be at least 8 characters.');
+          return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+          alert("New passwords do not match.");
+          return;
+        }
+
+        
+        const confirmChange = confirm("Are you sure you want to change the password?");
+        if (!confirmChange) {
+          alert("Password change canceled.");
+          return;
+        }
+
+        customers[index].password = newPassword;
+        localStorage.setItem('customers', JSON.stringify(customers));
+        alert("Password changed successfully!");
+        changePasswordForm.reset();
+      });
+    }
+
+
+</script>
+
+</body>
+</html>
